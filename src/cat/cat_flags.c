@@ -7,12 +7,12 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
                char *t, char *v) {
   FILE *file = fopen(filename, "r");
   char ch;
-  int count_new_str_ch = 0;
-  int count_new_str_ch_b = 0;
+  int count_new_str_ch_s = 0;
+  int count_new_str_ch_n = 0;
   char print_char_flag = 0;
   char print_new_line_flag = 0;
-  //   char buf_str[255];
-  int count_str = 0;
+  char is_ch_printed = 0;
+  int count_non_empty_str = 0;
   if ((file = fopen(filename, "r")) != NULL) {
     if (!(*b || *n || *e || *s || *t || *v)) {
       without_flags(file);
@@ -22,12 +22,12 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
       if (ch != EOF) {
         // s flag
         if (*s && (ch == '\n')) {
-          ++count_new_str_ch;
-          if (count_new_str_ch < 3) {
+          ++count_new_str_ch_s;
+          if (count_new_str_ch_s < 3) {
             putchar('\n');
           }
         } else {
-          count_new_str_ch = 0;
+          count_new_str_ch_s = 0;
           print_char_flag = 1;
           print_new_line_flag = 1;
         }
@@ -58,29 +58,38 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
           }
         }
         // v flag
-        // e flag
-        if (*e && (ch == '\n')) {
-          printf("$");
-          // printf("flag e works");
-        } else {
-          print_char_flag = 1;
-        }
-        // e flag
 
         // b flag
         if (*b) {
-          if (ch == '\n') {
-            ++count_new_str_ch_b;
-            if (count_new_str_ch_b < 2) {
-              printf("\n%d", count_str++);
+          if (ch != '\n') {
+            if (!is_ch_printed) {
+              printf("    %d  ", ++count_non_empty_str);
+              is_ch_printed = 1;
             }
-          } else {
-            count_new_str_ch = 0;
-            print_char_flag = 1;
-            print_new_line_flag = 1;
+          }
+          if (ch == '\n') {
+            is_ch_printed = 0;
           }
         }
         // b flag
+
+        // e flag
+        if (*e && (ch == '\n')) {
+          printf("$");
+        }
+        // e flag
+
+        // n flag
+        if (*n && !(*b)) {
+          if (!is_ch_printed) {
+            printf("%d    ", ++count_new_str_ch_n);
+            is_ch_printed = 1;
+          }
+          if (ch == '\n') {
+            is_ch_printed = 0;
+          }
+        }
+        // n flag
         if (print_char_flag && print_new_line_flag) {
           putchar(ch);
         }
@@ -88,11 +97,7 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
         print_new_line_flag = 0;
       }
     }
-    if (*n) {
-      printf("flag n works");
-    }
   }
-
   fclose(file);
 }
 
@@ -116,56 +121,30 @@ void write_non_print_symbols() {
   printf("%c", 127);
 }
 
-void cat_flag_b(const char *filename) {
-  FILE *file;
-  char buf_str[255];
-  int count_str = 0;
-  if ((file = fopen(filename, "r")) != NULL) {
-    while ((fgets(buf_str, 255, file)) != NULL) {
-      if (strlen(buf_str) > 1) {
-        printf("    %d  %s", ++count_str, buf_str);
-      } else {
-        printf("\n");
-      }
-    }
-  } else {
-    perror("can't read file");
-  }
-  fclose(file);
-}
-
-void cat_flag_n(const char *filename) {
-  FILE *file;
-  char buf_str[255];
-  int num_str = 0;
-  if ((file = fopen(filename, "r")) != NULL) {
-    while ((fgets(buf_str, 255, file)) != NULL) {
-      printf("%d    %s", ++num_str, buf_str);
-    }
-  } else {
-    perror("can't read file");
-  }
-  fclose(file);
-}
-
 void set_flags(const char *str, char *b, char *n, char *e, char *s, char *t,
                char *v) {
-  if (str[1] == 'b') {
+  if ((str[1] == 'b') || (!strcmp(str, "--number-nonblank"))) {
     *b = str[1];
   }
-  if (str[1] == 'n') {
+  if ((str[1] == 'n') || (!strcmp(str, "--number"))) {
     *n = str[1];
   }
   if (str[1] == 'e') {
     *e = str[1];
     *v = 'v';
   }
-  if (str[1] == 's') {
+  if (str[1] == 'E') {
+    *e = str[1];
+  }
+  if ((str[1] == 's') || (!strcmp(str, "--squeeze-blank"))) {
     *s = str[1];
   }
   if (str[1] == 't') {
     *t = str[1];
     *v = 'v';
+  }
+  if (str[1] == 'T') {
+    *t = str[1];
   }
   if (str[1] == 'v') {
     *v = str[1];
