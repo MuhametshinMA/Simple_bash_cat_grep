@@ -5,7 +5,7 @@
 
 void use_flags(const char *filename, char *b, char *n, char *e, char *s,
                char *t, char *v) {
-  FILE *file = fopen(filename, "r");
+  FILE *file;
   char ch;
   int count_new_str_ch_s = 0;
   int count_new_str_ch_n = 0;
