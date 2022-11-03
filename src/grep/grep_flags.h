@@ -11,5 +11,6 @@ typedef struct Grep_flags {
   char o;
 } grep_flags;
 
-void set_flags(int argc, char **argv, char *reg_str, grep_flags *grep_flags);
-void show_flags(int argc, char **argv, char *reg_str, grep_flags *grep_flags);
+void get_search_res(int argc, char **argv, char *reg_str, char *reg_filename);
+void set_flags(int argc, char **argv, char *reg_str, char *reg_filename, grep_flags *grep_flags);
+void show_flags(int argc, char **argv, char *reg_str, char *reg_filename, grep_flags *grep_flags);
