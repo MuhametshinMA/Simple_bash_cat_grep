@@ -1,5 +1,5 @@
 FLAG=-Werror -Wall -Wextra
-all: 21_grep
+all: 21_grep 21_cat
 
 21_cat: cat/cat_util.c cat/cat_flags.c
 	gcc $(FLAG) cat/cat_util.c cat/cat_flags.c -o cat/s21_cat
