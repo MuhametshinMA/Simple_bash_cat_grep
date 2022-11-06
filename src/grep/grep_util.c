@@ -1,10 +1,9 @@
-#include <regex.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "grep_flags.h"
 
 int main(int argc, char *argv[]) {
+  printf("%c", 127);
   grep_flags grep_flags = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   char reg_str[64] = "";
   char reg_filename[32] = "";

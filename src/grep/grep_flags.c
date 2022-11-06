@@ -8,8 +8,7 @@
 
 void get_search_res(int argc, char **argv, char *reg_str, char *reg_filename,
                     grep_flags *grep_flags) {
-  // printf("!!in getsearch: file!!\n");
-  int tmp_optind = optind;
+  int tmp_optind = optind + 1;
   FILE *file = NULL;
   regex_t reg_ptr;
 
@@ -24,6 +23,8 @@ void get_search_res(int argc, char **argv, char *reg_str, char *reg_filename,
 
   int ignore_case_flag = 0;
   // int can_print = 0;
+  int count_equal_str = 0;
+  char flag_c = 0;
 
   // printf("reg_str: %s\n", reg_str);
   printf("reg_filename: %s\n", reg_filename);
@@ -31,6 +32,7 @@ void get_search_res(int argc, char **argv, char *reg_str, char *reg_filename,
   while (tmp_optind < argc) {
     // printf("optind: %d\n", tmp_optind);
     // printf("reg_str: %s\n", reg_str);
+    // printf("\n!!!!%s!!!\n", argv[tmp_optind]);
     if ((file = fopen(argv[tmp_optind], "r")) != NULL) {
       // printf("optind: %d; file: %s; reg_str: %s\n", tmp_optind,
       //        argv[tmp_optind], reg_str);
@@ -47,43 +49,53 @@ void get_search_res(int argc, char **argv, char *reg_str, char *reg_filename,
           reg_rez = regexec(&reg_ptr, buf_str, n_match, p_match, 0);
           // if (grep_flags->v) {}
         }
-        if (grep_flags->v) {
-          if (reg_rez) printf("reg_rez: %d finded str: %s", reg_rez, buf_str);
-        } else {
-          if (!reg_rez) printf("reg_rez: %d finded str: %s", reg_rez, buf_str);
-        }
-        // if (regcomp(&reg_ptr, reg_str, ignore_case_flag) == 0) {
-        //   if (((reg_rez = regexec(&reg_ptr, buf_str, n_match, p_match, 0)))
-        //   ==
-        //       0) {
-        //     if (grep_flags->v) {
-        //       if (!reg_rez) {
-        //         printf("reg_rez: %d finded str: %s", reg_rez, buf_str);
-        //         can_print = 1;
-        //       } else {
-        //         printf("reg_rez: %d finded str: %s", reg_rez, buf_str);
-        //         can_print = 1;
-        //       }
-        //     }
-        //     can_print = 1;
-        //   }
-        // }
 
-        // can_print = 0;
+        // grep v
+        if (grep_flags->v) {
+          if (reg_rez) {
+            // grep c
+            // if (!grep_flags->c) {
+            //   printf("reg_rez: %d finded str: %s", reg_rez, buf_str);
+            // }
+            // count_equal_str++;
+            flag_c = 1;
+            // grep c
+          }
+        } else {
+          if (!reg_rez) {
+            // grep c
+            // if (!grep_flags->c) {
+            //   printf("reg_rez: %d finded str: %s", reg_rez, buf_str);
+            // }
+            // count_equal_str++;
+            flag_c = 1;
+            // grep c
+          }
+        }
+        // grep v
+        if (flag_c) {
+          if (!grep_flags->c) {
+            printf("reg_rez: %d finded str: %s", reg_rez, buf_str);
+          }
+          count_equal_str++;
+        }
       }
+      // grep c
+      if (grep_flags->c) {
+        printf("%d\n", count_equal_str);
+      }
+      // grep c
     }
     tmp_optind++;
   }
   free(buf_str);
   regfree(&reg_ptr);
-  // printf("!!END: in getsearch: file!!\n");
 }
 
 void set_flags(int argc, char **argv, char *reg_str, char *reg_filename,
                grep_flags *grep_flags) {
   char grep_key = 0;
   while ((grep_key = getopt(argc, argv, "e:ivclnhsf:o")) != -1) {
-    // printf("grep_key: %d, ", grep_key);
     switch (grep_key) {
       case 'e':
         grep_flags->e = 1;
