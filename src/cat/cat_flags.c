@@ -1,18 +1,22 @@
 #include "cat_flags.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 
 void use_flags(const char *filename, char *b, char *n, char *e, char *s,
                char *t, char *v) {
   FILE *file;
-  char ch;
-  int count_new_str_ch_s = 0;
-  int count_new_str_ch_n = 0;
+  int ch;
+  int new_line_count = 1;
+  int count_new_str_n = 0;
   char print_char_flag = 0;
-  char print_new_line_flag = 0;
+
   char is_ch_printed = 0;
   int count_non_empty_str = 0;
+
+  char can_print = 1;
+
   if ((file = fopen(filename, "r")) != NULL) {
     if (!(*b || *n || *e || *s || *t || *v)) {
       without_flags(file);
@@ -21,80 +25,121 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
       ch = getc(file);
       if (ch != EOF) {
         // s flag
-        if (*s && (ch == '\n')) {
-          ++count_new_str_ch_s;
-          if (count_new_str_ch_s < 3) {
-            putchar('\n');
+        if (*s) {
+          if (ch == '\n') {
+            if (new_line_count < 2) {
+              new_line_count++;
+              print_char_flag = 1;
+            } else {
+              print_char_flag = 0;
+            }
+          } else {
+            new_line_count = 0;
+            print_char_flag = 1;
           }
         } else {
-          count_new_str_ch_s = 0;
           print_char_flag = 1;
-          print_new_line_flag = 1;
         }
         // s flag
 
-        // t flag
-        if (*t && (ch == 9)) {
-          printf("^I");
-        } else {
-          print_char_flag = 1;
-        }
+        /*
+                // v flag
+                if (*v) {
+                  if (ch < 32) {
+                    if ((ch == 10) || (ch == 9)) {
+                      print_char_flag = 1;
+                    } else {
+                      // printf("^%c", ch + 64);
+                      putchar('^');
+                      putchar(ch + 64);
+                    }
+                  } else {
+                    print_char_flag = 1;
+                  }
+                  if ((ch == 127)) {
+                    // printf("^%c", ch - 64);
+                    putchar('^');
+                    putchar(ch - 64);
+                  }
+                }
+                // v flag
 
-        // t flag
 
-        // v flag
-        if (*v) {
-          if (ch < 32) {
-            if ((ch == 10) || (ch == 9)) {
-              print_char_flag = 1;
+                */
+        if (print_char_flag) {
+          // b flag
+          if (*b) {
+            if (ch == '\n') {
+              is_ch_printed = 1;
             } else {
-              printf("^%c", ch + 64);
+              if (is_ch_printed) {
+                printf("%6d\t", ++count_non_empty_str);
+                is_ch_printed = 0;
+              }
             }
+          }
+          // b flag
+
+          // n flag
+          if (*n && !(*b)) {
+            if (!is_ch_printed) {
+              printf("%6d\t", ++count_new_str_n);
+              is_ch_printed = 1;
+            }
+            if (ch == '\n') {
+              is_ch_printed = 0;
+            }
+          }
+          // n flag
+
+          // e flag
+          if (*e && (ch == '\n')) {
+            printf("$");
+          }
+          // e flag
+
+          // t flag
+          if (*t && (ch == 9)) {
+            printf("^I");
           } else {
             print_char_flag = 1;
           }
-          if ((ch == 127)) {
-            printf("^%c", ch - 64);
-          }
-        }
-        // v flag
+          // t flag
 
-        // b flag
-        if (*b) {
-          if (ch != '\n') {
-            if (!is_ch_printed) {
-              printf("    %d  ", ++count_non_empty_str);
-              is_ch_printed = 1;
+          // v flag
+          if (*v) {
+            if ((ch >= 0) && (ch < 9)) {
+              putchar('^');
+              putchar(ch + 64);
+              can_print = 0;
+            }
+            if ((ch > 10) && (ch < 32)) {
+              putchar('^');
+              putchar(ch + 64);
+              can_print = 0;
+            }
+            if (ch == 127) {
+              putchar('^');
+              putchar(ch - 64);
+              can_print = 0;
+            }
+            if ((ch > 127) && (ch < 160)) {
+              putchar('-');
+              putchar('M');
+              putchar('^');
+              putchar(ch % 128 + 64);
+              can_print = 0;
             }
           }
-          if (ch == '\n') {
-            is_ch_printed = 0;
-          }
-        }
-        // b flag
+          // v flag
 
-        // e flag
-        if (*e && (ch == '\n')) {
-          printf("$");
-        }
-        // e flag
-
-        // n flag
-        if (*n && !(*b)) {
-          if (!is_ch_printed) {
-            printf("%d    ", ++count_new_str_ch_n);
-            is_ch_printed = 1;
-          }
-          if (ch == '\n') {
-            is_ch_printed = 0;
+          // putchar(ch);
+          if (can_print) {
+            putchar(ch);
+          } else {
+            can_print = 1;
           }
         }
-        // n flag
-        if (print_char_flag && print_new_line_flag) {
-          putchar(ch);
-        }
-        print_char_flag = 0;
-        print_new_line_flag = 0;
       }
     }
   }
@@ -152,22 +197,22 @@ void set_flags(const char *str, char *b, char *n, char *e, char *s, char *t,
 }
 
 void show_flags(char b, char n, char e, char s, char t, char v) {
-  if (b == 'b') {
+  if (b) {
     printf("flag b exists\n");
   }
-  if (n == 'n') {
+  if (n) {
     printf("flag n exists\n");
   }
-  if (e == 'e') {
+  if (e) {
     printf("flag e exists\n");
   }
-  if (s == 's') {
+  if (s) {
     printf("flag s exists\n");
   }
-  if (t == 't') {
+  if (t) {
     printf("flag t exists\n");
   }
-  if (v == 'v') {
+  if (v) {
     printf("flag v exists\n");
   }
 }
