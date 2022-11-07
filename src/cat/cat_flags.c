@@ -12,7 +12,9 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
   int count_new_str_n = 0;
   char print_char_flag = 0;
 
-  char is_ch_printed = 0;
+  char is_ch_printed = 1;
+  char is_ch_printed_n = 0;
+
   int count_non_empty_str = 0;
 
   char can_print = 1;
@@ -58,12 +60,12 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
 
           // n flag
           if (*n && !(*b)) {
-            if (!is_ch_printed) {
+            if (!is_ch_printed_n) {
               printf("%6d\t", ++count_new_str_n);
-              is_ch_printed = 1;
+              is_ch_printed_n = 1;
             }
             if (ch == '\n') {
-              is_ch_printed = 0;
+              is_ch_printed_n = 0;
             }
           }
           // n flag
@@ -77,8 +79,7 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
           // t flag
           if (*t && (ch == 9)) {
             printf("^I");
-          } else {
-            print_char_flag = 1;
+            can_print = 0;
           }
           // t flag
 
