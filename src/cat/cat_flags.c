@@ -42,30 +42,6 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
         }
         // s flag
 
-        /*
-                // v flag
-                if (*v) {
-                  if (ch < 32) {
-                    if ((ch == 10) || (ch == 9)) {
-                      print_char_flag = 1;
-                    } else {
-                      // printf("^%c", ch + 64);
-                      putchar('^');
-                      putchar(ch + 64);
-                    }
-                  } else {
-                    print_char_flag = 1;
-                  }
-                  if ((ch == 127)) {
-                    // printf("^%c", ch - 64);
-                    putchar('^');
-                    putchar(ch - 64);
-                  }
-                }
-                // v flag
-
-
-                */
         if (print_char_flag) {
           // b flag
           if (*b) {
@@ -108,12 +84,7 @@ void use_flags(const char *filename, char *b, char *n, char *e, char *s,
 
           // v flag
           if (*v) {
-            if ((ch >= 0) && (ch < 9)) {
-              putchar('^');
-              putchar(ch + 64);
-              can_print = 0;
-            }
-            if ((ch > 10) && (ch < 32)) {
+            if (((ch >= 0) && (ch < 9)) || ((ch > 10) && (ch < 32))) {
               putchar('^');
               putchar(ch + 64);
               can_print = 0;

@@ -16,6 +16,6 @@ int main(int argc, char *argv[]) {
 
   use_flags(argv[argc - 1], &flag_b, &flag_n, &flag_e, &flag_s, &flag_v,
             &flag_t);
-  show_flags(flag_b, flag_n, flag_e, flag_s, flag_v, flag_t);
+  // show_flags(flag_b, flag_n, flag_e, flag_s, flag_v, flag_t);
   return 0;
 }
