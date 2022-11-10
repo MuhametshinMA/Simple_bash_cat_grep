@@ -25,12 +25,15 @@ void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
   int count_equal_str = 0;
 
   char was_equal = 0;
-
+  //  char continue_flag = 0;
+  // int str_count = 0;
+  show_reg_args(grep_flags);
   while (tmp_optind < argc) {
     if ((file = fopen(argv[tmp_optind], "r")) != NULL) {
       int finded_num_str = 0;
 
       while ((chars = getline(&buf_str, &buf_size, file)) != -1) {
+        // printf("%d chars: %d\n", ++str_count, chars);
         for (int i = 0; i < grep_flags->ind_reg_str; i++) {
           //  grep -i
           if (grep_flags->i) {
@@ -41,6 +44,8 @@ void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
               0) {
             reg_rez = regexec(&reg_ptr, buf_str, n_match, p_match, 0);
           }
+          // printf("status: %d reg: %s result: %s", reg_rez,
+          // grep_flags->arr_reg_str[i], buf_str);
           // grep n
           finded_num_str++;
           // grep n
@@ -48,25 +53,35 @@ void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
           // grep v
           if (grep_flags->v) {
             if (reg_rez) {
+              // printf("status: %d\n", reg_rez);
               print_str(buf_str, grep_flags, argv[tmp_optind], finded_num_str);
               count_equal_str++;
               // grep l
               was_equal = 1;
               // grep l
+              // continue_flag = 1;
               break;
             }
           } else {
+            // printf("status: %d\n", reg_rez);
             if (!reg_rez) {
+              // printf("in %d\n", str_count);
               print_str(buf_str, grep_flags, argv[tmp_optind], finded_num_str);
               count_equal_str++;
               // grep l
               was_equal = 1;
               // grep l
+              // continue_flag = 1;
               break;
             }
           }
           // grep v
         }
+        // if (continue_flag) {
+        //   continue;
+        //   continue_flag = 0;
+        // }
+        // printf("done: %d\n", str_count);
       }
       // grep c
       if (grep_flags->c) {
@@ -130,7 +145,6 @@ void set_flags(int argc, char **argv, grep_flags *grep_flags) {
   while ((grep_key = getopt(argc, argv, "e:ivclnhsf:o")) != -1) {
     switch (grep_key) {
       case 'e':
-        printf("in e flag\n");
         grep_flags->e = 1;
         grep_flags->set_reg_arg(grep_flags, optarg);
         break;
@@ -209,7 +223,10 @@ void set_regs_from_file(grep_flags *grep_flags, char *file_name) {
   if ((file = fopen(file_name, "r")) != NULL) {
     while ((chars = getline(&buf_str, &buf_size, file)) != -1) {
       char reg_tmp[255] = {0};
-      if (strlen(buf_str) != 1) {
+      if (strlen(buf_str) == 1) {
+        // memcpy(reg_tmp, buf_str, strlen(buf_str));
+        grep_flags->set_reg_arg(grep_flags, "**");
+      } else {
         memcpy(reg_tmp, buf_str, strlen(buf_str) - 1);
         grep_flags->set_reg_arg(grep_flags, reg_tmp);
       }
