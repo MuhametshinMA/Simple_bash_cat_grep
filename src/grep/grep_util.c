@@ -12,6 +12,6 @@ int main(int argc, char *argv[]) {
   // grep_flags.show_reg_args(&grep_flags);
   //   show_flags(argc, argv, reg_str, reg_filename, &grep_flags);
   get_search_res(argc, argv, &grep_flags);
-
+  // printf("\n");
   return 0;
 }

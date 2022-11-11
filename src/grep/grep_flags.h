@@ -24,6 +24,7 @@ void set_reg_arg(grep_flags *grep_flags, char *reg_str);
 void show_reg_args(grep_flags *grep_flags);
 // struct methods
 
+char find_match(grep_flags *grep_flags, char *buf_str);
 void print_str(char *buf_str, grep_flags *grep_flags, char *file_name,
                int finded_num_str);
 
