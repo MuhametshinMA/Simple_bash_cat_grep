@@ -30,4 +30,4 @@ void print_str(char *buf_str, grep_flags *grep_flags, char *file_name,
 
 void get_search_res(int argc, char **argv, grep_flags *grep_flags);
 void set_flags(int argc, char **argv, grep_flags *grep_flags);
-void show_flags(int argc, char **argv, grep_flags *grep_flags);
+void show_flags(grep_flags *grep_flags);
