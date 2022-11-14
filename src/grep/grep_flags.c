@@ -52,7 +52,8 @@ void print_file(char **argv, grep_flags *grep_flags, int count_matches,
     }
   }
   if (!(grep_flags->count_files < 2) && (grep_flags->l) && grep_flags->c) {
-    //printf("count_matches: %d F: %d\n", count_matches, grep_flags->count_files);
+    // printf("count_matches: %d F: %d\n", count_matches,
+    // grep_flags->count_files);
     if (count_matches) {
       if (grep_flags->h) {
         printf("%d\n%s\n", count_matches / count_matches, argv[tmp_optind]);
@@ -97,12 +98,13 @@ char find_match(grep_flags *grep_flags, char *buf_str) {
     //  grep -i
     if (regcomp(&reg_ptr, grep_flags->arr_reg_str[i], ignore_case_flag) == 0) {
       reg_rez = regexec(&reg_ptr, buf_str, 0, NULL, 0);
+      regfree(&reg_ptr);
     }
     if (!reg_rez) {
       finded = 1;
     }
   }
-  regfree(&reg_ptr);
+
   return finded;
 }
 void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
@@ -199,7 +201,7 @@ void print_str(char *buf_str, grep_flags *grep_flags, char *file_name,
 }
 
 void set_flags(int argc, char **argv, grep_flags *grep_flags) {
-  FILE *file = NULL;
+  // FILE *file = NULL;
   char grep_key = 0;
 
   static struct option long_options[] = {
@@ -258,12 +260,13 @@ void set_flags(int argc, char **argv, grep_flags *grep_flags) {
     // for (int i = 0; i < argc; i++) {
     //   printf("%s ", argv[i]);
     // }
-    //printf("\n optind: %d argc: %d\n", optind, argc);
+    // printf("\n optind: %d argc: %d\n", optind, argc);
     grep_flags->count_files = argc - optind;
-    //printf("2Num_f %d\n", grep_flags->count_files);
+    // printf("2Num_f %d\n", grep_flags->count_files);
   }
-  file = NULL;
-  fclose(file);
+
+  // fclose(file);
+  // file = NULL;
 }
 
 void show_flags(grep_flags *grep_flags) {
@@ -308,9 +311,11 @@ void set_regs_from_file(grep_flags *grep_flags, char *file_name) {
   } else {
     printf("%s no file\n", file_name);
   }
-  buf_str = NULL;
+
   free(buf_str);
+  buf_str = NULL;
   fclose(file);
+  buf_str = NULL;
 }
 
 void set_reg_arg(grep_flags *grep_flags, char *reg_str) {
