@@ -6,6 +6,83 @@
 #include <stdlib.h>
 #include <string.h>
 
+void print_line(char **argv, grep_flags *grep_flags, char *str,
+                int finded_num_str, int tmp_optind) {
+  if (!grep_flags->c && !grep_flags->l) {
+    if (grep_flags->count_files < 2) {
+      if (grep_flags->n) {
+        printf("%d:%s\n", finded_num_str, str);
+      } else {
+        printf("%s\n", str);
+      }
+    } else {
+      if (grep_flags->n) {
+        if (grep_flags->h) {
+          printf("%d:%s\n", finded_num_str, str);
+        } else {
+          printf("%s:%d:%s\n", argv[tmp_optind], finded_num_str, str);
+        }
+      } else {
+        if (grep_flags->h) {
+          printf("%s\n", str);
+        } else {
+          printf("%s:%s\n", argv[tmp_optind], str);
+        }
+      }
+    }
+  }
+}
+
+void print_file(char **argv, grep_flags *grep_flags, int count_matches,
+                int tmp_optind, char was_find) {
+  if (was_find) {
+    if (grep_flags->l && !(grep_flags->c)) {
+      printf("%s\n", argv[tmp_optind]);
+    }
+  }
+  if ((grep_flags->count_files < 2) && !(grep_flags->l) && grep_flags->c) {
+    printf("%d\n", count_matches);
+  }
+  if ((grep_flags->count_files < 2) && grep_flags->l && grep_flags->c) {
+    if (count_matches) {
+      // printf("num_files: %d\n", grep_flags->count_files);
+      printf("%d\n%s\n", count_matches / count_matches, argv[tmp_optind]);
+    } else {
+      printf("%d\n", count_matches);
+    }
+  }
+  if (!(grep_flags->count_files < 2) && (grep_flags->l) && grep_flags->c) {
+    //printf("count_matches: %d F: %d\n", count_matches, grep_flags->count_files);
+    if (count_matches) {
+      if (grep_flags->h) {
+        printf("%d\n%s\n", count_matches / count_matches, argv[tmp_optind]);
+      } else {
+        // printf("F: %d\n", grep_flags->count_files);
+        printf("%s:%d\n%s\n", argv[tmp_optind], count_matches / count_matches,
+               argv[tmp_optind]);
+        // printf("i%d\n%s\n", count_matches / count_matches, argv[tmp_optind]);
+      }
+
+    } else {
+      if (grep_flags->h) {
+        printf("%d\n", count_matches);
+      } else {
+        printf("%s:%d\n", argv[tmp_optind], count_matches);
+      }
+    }
+  }
+
+  if (grep_flags->h) {
+    if (!(grep_flags->count_files < 2) && !(grep_flags->l) && grep_flags->c) {
+      printf("%d\n", count_matches);
+    }
+  } else {
+    if (!(grep_flags->count_files < 2) && !(grep_flags->l) && grep_flags->c) {
+      printf("%s:%d\n", argv[tmp_optind], count_matches);
+    }
+  }
+}
+
 char find_match(grep_flags *grep_flags, char *buf_str) {
   regex_t reg_ptr;
   int ignore_case_flag = 0;
@@ -28,7 +105,6 @@ char find_match(grep_flags *grep_flags, char *buf_str) {
   regfree(&reg_ptr);
   return finded;
 }
-
 void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
   int tmp_optind = optind;
   FILE *file = NULL;
@@ -36,80 +112,37 @@ void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
   int chars = 0;
   size_t buf_size = 256;
   char *buf_str;
-  char lexeme[256] = "";
+  // char lexeme[256] = "";
   buf_str = (char *)malloc(buf_size * sizeof(char));
   while (tmp_optind < argc) {
     int finded_num_str = 1;
     if ((file = fopen(argv[tmp_optind], "r")) != NULL) {
-      int count_matches = 0;
       char was_find = 0;
+      int count_matches = 0;
       while ((chars = getline(&buf_str, &buf_size, file)) != -1) {
         // add \n
         if (buf_str[strlen(buf_str) - 1] == '\n') {
           buf_str[strlen(buf_str) - 1] = '\0';
         }
         // add \n
+
         // flag o
-        if (grep_flags->o) {
-          strcpy(lexeme, buf_str);
-          printf("lexeme: %s\n", lexeme);
-        }
+        // if (grep_flags->o) {
+        // strcpy(lexeme, buf_str);
+        // printf("lexeme: %s\n", lexeme);
+        //}
         // flag o
         if (((!grep_flags->v) && (find_match(grep_flags, buf_str))) ||
             ((grep_flags->v) && (!find_match(grep_flags, buf_str)))) {
           was_find = 1;
           count_matches++;
-          if (!grep_flags->c && !grep_flags->l) {
-            // exp
-            if (grep_flags->count_files < 2) {
-              // flag n
-              if (grep_flags->n) {
-                printf("%d:%s\n", finded_num_str, buf_str);
-              } else {
-                printf("%s\n", buf_str);
-              }
-              // flag n
-            } else {
-              if (grep_flags->n) {
-                if (grep_flags->h) {
-                  printf("%d:%s\n", finded_num_str, buf_str);
-                } else {
-                  printf("%s:%d:%s\n", argv[tmp_optind], finded_num_str,
-                         buf_str);
-                }
-              } else {
-                if (grep_flags->h) {
-                  printf("%s\n", buf_str);
-                } else {
-                  printf("%s:%s\n", argv[tmp_optind], buf_str);
-                }
-              }
-            }
-            // exp
-          }
+          print_line(argv, grep_flags, buf_str, finded_num_str, tmp_optind);
         }
         // grep n
         finded_num_str++;
         // grep n
       }
-      if (was_find) {
-        // exp 2
-        if (grep_flags->l && !(grep_flags->c)) {
-          printf("%s\n", argv[tmp_optind]);
-        }
-      }
-      if ((grep_flags->count_files < 2) && !(grep_flags->l) && grep_flags->c) {
-        printf("%d\n", count_matches);
-      }
-      if ((grep_flags->count_files < 2) && grep_flags->l && grep_flags->c) {
-        printf("%d\n%s\n", count_matches, argv[tmp_optind]);
-      }
-      if (!(grep_flags->count_files < 2) && (grep_flags->l) && grep_flags->c) {
-        printf("%s:%d\n", argv[tmp_optind], count_matches);
-      }
-      if (!(grep_flags->count_files < 2) && !(grep_flags->l) && grep_flags->c) {
-        printf("%s:%d\n", argv[tmp_optind], count_matches);
-      }
+      print_file(argv, grep_flags, count_matches, tmp_optind, was_find);
     } else {
       // grep s
       // if (!grep_flags->s) {
@@ -220,8 +253,14 @@ void set_flags(int argc, char **argv, grep_flags *grep_flags) {
         break;
       }
     }
+    // printf("1Num_f %d\n", grep_flags->count_files);
   } else {
+    // for (int i = 0; i < argc; i++) {
+    //   printf("%s ", argv[i]);
+    // }
+    //printf("\n optind: %d argc: %d\n", optind, argc);
     grep_flags->count_files = argc - optind;
+    //printf("2Num_f %d\n", grep_flags->count_files);
   }
   file = NULL;
   fclose(file);
