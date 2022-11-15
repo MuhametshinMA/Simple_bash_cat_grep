@@ -15,7 +15,6 @@ typedef struct Grep_flags {
   void (*set_reg_arg)();
   void (*set_regs_from_file)();
   void (*show_reg_args)();
-  char *reg_str;
 } grep_flags;
 
 // struct methods
