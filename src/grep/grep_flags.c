@@ -103,7 +103,7 @@ char find_match(grep_flags *grep_flags, char *buf_str) {
   return finded;
 }
 void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
-  int tmp_optind = optind;
+  int tmp_optind = argc - grep_flags->count_files;
   FILE *file = NULL;
 
   int chars = 0;
@@ -111,6 +111,7 @@ void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
   char *buf_str;
   buf_str = (char *)malloc(buf_size * sizeof(char));
   while (tmp_optind < argc) {
+    // printf("%s\n", argv[tmp_optind]);
     int finded_num_str = 1;
     if ((file = fopen(argv[tmp_optind], "r")) != NULL) {
       char was_find = 0;
@@ -132,6 +133,10 @@ void get_search_res(int argc, char **argv, grep_flags *grep_flags) {
         // grep n
       }
       print_file(argv, grep_flags, count_matches, tmp_optind, was_find);
+    } else {
+      if (!grep_flags->s) {
+        printf("grep: %s: No such file or directory\n", argv[tmp_optind]);
+      }
     }
     tmp_optind++;
   }
